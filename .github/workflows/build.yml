@@ -48,7 +48,7 @@ jobs:
       - name: Build for ESP32
         run: >-
           arduino-cli compile
-          --fqbn "esp32:esp32:esp32dev"
+          --fqbn "esp32:esp32:esp32"
           --library shared
           "${{ matrix.sketch }}/"
 
@@ -62,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.sketch }}-esp32"
-          path: "${{ matrix.sketch }}/build/esp32.esp32.esp32dev/*.bin"
+          path: "${{ matrix.sketch }}/build/esp32.esp32.esp32/*.bin"

@@ -49,7 +49,7 @@ jobs:
       - name: Build for ESP32
         run: >-
           arduino-cli compile
-          --fqbn "esp32:esp32:esp32dev"
+          --fqbn "esp32:esp32:esp32"
           --library shared
           "${{ matrix.sketch }}/"
 
@@ -57,7 +57,7 @@ jobs:
         run: |
           mkdir -p release
           cp "${{ matrix.sketch }}"/build/esp8266.esp8266.d1_mini/*.bin release/ 2>/dev/null || true
-          cp "${{ matrix.sketch }}"/build/esp32.esp32.esp32dev/*.bin release/ 2>/dev/null || true
+          cp "${{ matrix.sketch }}"/build/esp32.esp32.esp32/*.bin release/ 2>/dev/null || true
           cd release
           for f in *.bin; do
             [ -f "$f" ] || continue
