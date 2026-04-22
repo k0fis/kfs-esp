@@ -1,0 +1,17 @@
+# Build artifacts
+build/
+*.bin
+*.elf
+*.map
+
+# IDE
+.vscode/
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# macOS
+.DS_Store
+
+# Arduino CLI cache
+libraries/
