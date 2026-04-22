@@ -17,6 +17,7 @@ jobs:
         with:
           compliance: specification
           project-type: sketch
+          recursive: true
 
       - name: Install cppcheck
         run: sudo apt-get install -y cppcheck
