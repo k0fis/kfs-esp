@@ -25,13 +25,14 @@ jobs:
       - name: Static analysis (cppcheck)
         run: >-
           cppcheck
+          --language=c++
           --enable=warning,performance,portability
           --error-exitcode=1
           --suppress=missingIncludeSystem
           --suppress=unknownMacro
           --inline-suppr
           -I shared/
-          kfs_esp_dht22/ shared/
+          kfs_esp_dht22/*.ino shared/*.h
 
   build:
     runs-on: ubuntu-latest
