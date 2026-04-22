@@ -7,7 +7,7 @@
  * Works on ESP8266 and ESP32.
  *
  * Usage in sensor sketch:
- *   #include "../shared/kfs_esp_common.h"
+ *   #include <kfs_esp_common.h>
  *   #define SENSOR_TYPE "dht22"
  *   void kfsReadSensor();             // implement: update kfsData
  *   String kfsDataJson();             // implement: return JSON object body

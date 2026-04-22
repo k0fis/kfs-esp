@@ -42,12 +42,14 @@ jobs:
         run: >-
           arduino-cli compile
           --fqbn "esp8266:esp8266:d1_mini:eesz=4M2M"
+          --library shared
           "${{ matrix.sketch }}/"
 
       - name: Build for ESP32
         run: >-
           arduino-cli compile
           --fqbn "esp32:esp32:esp32dev"
+          --library shared
           "${{ matrix.sketch }}/"
 
       - name: Upload ESP8266 firmware

@@ -14,7 +14,7 @@
 
 #define SENSOR_TYPE "dht22"
 
-#include "../shared/kfs_esp_common.h"
+#include <kfs_esp_common.h>
 #include <DHT.h>
 
 // --- Hardware config ---
