@@ -32,7 +32,7 @@ jobs:
           --suppress=unknownMacro
           --inline-suppr
           -I shared/
-          kfs_esp_dht22/*.ino shared/*.h
+          kfs_esp_dht22/*.ino
 
   build:
     runs-on: ubuntu-latest
