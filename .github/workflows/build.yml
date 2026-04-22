@@ -43,6 +43,7 @@ jobs:
           arduino-cli compile
           --fqbn "esp8266:esp8266:d1_mini:eesz=4M2M"
           --library shared
+          --output-dir "build/esp8266"
           "${{ matrix.sketch }}/"
 
       - name: Build for ESP32
@@ -50,16 +51,17 @@ jobs:
           arduino-cli compile
           --fqbn "esp32:esp32:esp32"
           --library shared
+          --output-dir "build/esp32"
           "${{ matrix.sketch }}/"
 
       - name: Upload ESP8266 firmware
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.sketch }}-esp8266"
-          path: "${{ matrix.sketch }}/build/esp8266.esp8266.d1_mini/*.bin"
+          path: "build/esp8266/*.bin"
 
       - name: Upload ESP32 firmware
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.sketch }}-esp32"
-          path: "${{ matrix.sketch }}/build/esp32.esp32.esp32/*.bin"
+          path: "build/esp32/*.bin"
