@@ -42,7 +42,7 @@ jobs:
       - name: Build for ESP8266 (D1 Mini)
         run: >-
           arduino-cli compile
-          --fqbn "esp8266:esp8266:d1_mini:eesz=1M64"
+          --fqbn "esp8266:esp8266:d1_mini:eesz=4M2M"
           "${{ matrix.sketch }}/"
 
       - name: Build for ESP32
