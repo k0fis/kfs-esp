@@ -13,9 +13,6 @@ jobs:
       matrix:
         sketch:
           - kfs_esp_dht22
-        include:
-          - sketch: kfs_esp_dht22
-            libs: "WiFiManager" "DHT sensor library" "Adafruit Unified Sensor"
 
     steps:
       - uses: actions/checkout@v4
@@ -29,28 +26,31 @@ jobs:
           arduino-cli core install esp32:esp32
 
       - name: Install libraries
-        run: arduino-cli lib install ${{ matrix.libs }}
+        run: |
+          arduino-cli lib install "WiFiManager"
+          arduino-cli lib install "DHT sensor library"
+          arduino-cli lib install "Adafruit Unified Sensor"
 
       - name: Build for ESP8266 (D1 Mini)
-        run: |
-          arduino-cli compile \
-            --fqbn esp8266:esp8266:d1_mini:eesz=1M64 \
-            ${{ matrix.sketch }}/
+        run: >-
+          arduino-cli compile
+          --fqbn "esp8266:esp8266:d1_mini:eesz=1M64"
+          "${{ matrix.sketch }}/"
 
       - name: Build for ESP32
-        run: |
-          arduino-cli compile \
-            --fqbn esp32:esp32:esp32dev \
-            ${{ matrix.sketch }}/
+        run: >-
+          arduino-cli compile
+          --fqbn "esp32:esp32:esp32dev"
+          "${{ matrix.sketch }}/"
 
       - name: Upload ESP8266 firmware
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.sketch }}-esp8266
-          path: ${{ matrix.sketch }}/build/esp8266.esp8266.d1_mini/*.bin
+          name: "${{ matrix.sketch }}-esp8266"
+          path: "${{ matrix.sketch }}/build/esp8266.esp8266.d1_mini/*.bin"
 
       - name: Upload ESP32 firmware
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.sketch }}-esp32
-          path: ${{ matrix.sketch }}/build/esp32.esp32.esp32dev/*.bin
+          name: "${{ matrix.sketch }}-esp32"
+          path: "${{ matrix.sketch }}/build/esp32.esp32.esp32dev/*.bin"
