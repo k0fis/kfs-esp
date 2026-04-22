@@ -19,6 +19,13 @@ jobs:
 
       - uses: arduino/setup-arduino-cli@v2
 
+      - name: Configure board manager URLs
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls \
+            "https://arduino.esp8266.com/stable/package_esp8266com_index.json" \
+            "https://espressif.github.io/arduino-esp32/package_esp32_index.json"
+
       - name: Install board cores
         run: |
           arduino-cli core update-index
