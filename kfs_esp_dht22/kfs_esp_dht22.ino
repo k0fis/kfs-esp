@@ -31,19 +31,21 @@ static bool  sensorOk   = false;
 // --- Callbacks required by kfs_esp_common.h ---
 
 void kfsReadSensor() {
-    float t = dht.readTemperature();
-    float h = dht.readHumidity();
+    for (int attempt = 0; attempt < 3; attempt++) {
+        if (attempt > 0) delay(2000);
+        float t = dht.readTemperature();
+        float h = dht.readHumidity();
 
-    if (isnan(t) || isnan(h)) {
-        Serial.println("DHT read error");
-        sensorOk = false;
-        return;
+        if (!isnan(t) && !isnan(h)) {
+            sensorTemp = t;
+            sensorHum  = h;
+            sensorOk   = true;
+            Serial.printf("%.1f C  %.1f %%\n", t, h);
+            return;
+        }
+        Serial.printf("DHT read error (attempt %d/3)\n", attempt + 1);
     }
-
-    sensorTemp = t;
-    sensorHum  = h;
-    sensorOk   = true;
-    Serial.printf("%.1f C  %.1f %%\n", t, h);
+    sensorOk = false;
 }
 
 String kfsDataJson() {
