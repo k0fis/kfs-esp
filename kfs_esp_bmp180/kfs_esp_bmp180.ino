@@ -22,7 +22,7 @@
 Adafruit_BMP085 bmp;
 static bool sensorInitialized = false;
 
-#define ALTITUDE_M 235.0
+#define ALTITUDE_M 233.0
 
 // --- Sensor data ---
 static float sensorTemp     = NAN;
