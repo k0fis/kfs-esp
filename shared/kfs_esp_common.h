@@ -42,11 +42,13 @@
 #define KFS_CONFIG_FILE   "/config.json"
 #define KFS_NAME_MAX      64
 #define KFS_SENSOR_INTERVAL 10000  // ms between sensor reads
+#define KFS_WIFI_CHECK_INTERVAL 30000  // ms between WiFi connectivity checks
 
 // --- Globals ---
 static char kfsDeviceName[KFS_NAME_MAX] = "";
 static bool kfsShouldSaveConfig = false;
 static unsigned long kfsLastSensorRead = 0;
+static unsigned long kfsLastWifiCheck = 0;
 
 // --- Forward declarations (implement in sensor sketch) ---
 extern void kfsReadSensor();
@@ -216,6 +218,24 @@ static void kfsLoop() {
     if (now - kfsLastSensorRead >= KFS_SENSOR_INTERVAL) {
         kfsLastSensorRead = now;
         kfsReadSensor();
+    }
+
+    // WiFi watchdog — restart if connection lost
+    if (now - kfsLastWifiCheck >= KFS_WIFI_CHECK_INTERVAL) {
+        kfsLastWifiCheck = now;
+        if (WiFi.status() != WL_CONNECTED) {
+            Serial.println("WiFi lost, attempting reconnect...");
+            WiFi.reconnect();
+            unsigned long start = millis();
+            while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+                delay(250);
+            }
+            if (WiFi.status() != WL_CONNECTED) {
+                Serial.println("Reconnect failed, restarting...");
+                ESP.restart();
+            }
+            Serial.printf("WiFi reconnected: %s\n", WiFi.localIP().toString().c_str());
+        }
     }
 }
 
