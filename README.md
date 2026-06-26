@@ -14,9 +14,12 @@ Shared infrastructure (WiFi setup, web server, config) lives in `shared/kfs_esp_
 
 ## Sensor Types
 
-| Directory | Sensor | Measures |
-|-----------|--------|----------|
-| `kfs_esp_dht22/` | DHT22 (AM2302) | Temperature, Humidity |
+| Directory | Sensor | MCU | Measures |
+|-----------|--------|-----|----------|
+| `kfs_esp_dht22/` | DHT22 (AM2302) | ESP8266 D1 Mini | Temperature, Humidity |
+| `kfs_esp_bme280/` | BME280/BMP280 | ESP8266 D1 Mini | Temperature, Humidity, Pressure |
+| `kfs_esp_bmp180/` | BMP180 | ESP8266 D1 Mini | Temperature, Pressure |
+| `kfs_esp_scd41/` | SCD41 (Sensirion) | ESP32-C3 Super Mini | CO₂, Temperature, Humidity |
 
 ## JSON API
 
@@ -34,7 +37,9 @@ Shared infrastructure (WiFi setup, web server, config) lives in `shared/kfs_esp_
 }
 ```
 
-## Wiring (DHT22 on D1 Mini)
+## Wiring
+
+### DHT22 on D1 Mini (ESP8266)
 
 ```
 D1 Mini          DHT22
@@ -46,6 +51,19 @@ GND        -->   GND  (pin 4)
 
 Pull-up 4.7kΩ between DATA and VCC
 (not needed if using a DHT22 breakout board with built-in pull-up)
+```
+
+### SCD41 on ESP32-C3 Super Mini
+
+```
+ESP32-C3 Super Mini      LaskaKit SCD41
+-------------------      --------------
+3V3             -->      VCC
+GND             -->      GND
+GPIO8           -->      SDA
+GPIO9           -->      SCL
+
+(pull-ups integrated on SCD41 module — no external resistors needed)
 ```
 
 ## Build & Flash
