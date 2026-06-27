@@ -21,7 +21,7 @@
 // "body" = main shield body
 // "plug" = bayonet plug (bottom cap)
 // "both" = assembly view
-render_mode = "both";
+render_mode = "body";
 
 // === PARAMETERS ===
 
@@ -136,15 +136,21 @@ module body() {
             linear_extrude(height=0.5)
                 text("KFS", size=8, halign="center", valign="center", font="Liberation Sans:style=Bold");
 
-        // Vent holes near top (below cap, protected by top lamel)
-        // Hot air rises and escapes here
-        vent_z = total_h - cap_t - 3;  // just below cap
+        // Ventilation slots below each lamel (except the bottom one)
+        // Tall narrow slots — air enters from below, rises past sensor, exits here
+        slot_w = 3;             // slot width (tangential)
+        slot_h = lamel_spacing - lamel_t - 2;  // slot height (leaves 1mm margin top+bottom)
+        for (i = [1 : num_lamels-1])
+            for (a = [0, 60, 120, 180, 240, 300])
+                rotate([0, 0, a])
+                    translate([-slot_w/2, col_inner_r - 1, bottom_ext + i * lamel_spacing - lamel_spacing/2 - slot_h/2 + lamel_t/2])
+                        cube([slot_w, wall + 2, slot_h]);
+
+        // Top vent slots (below cap, above top lamel)
         for (a = [0, 60, 120, 180, 240, 300])
             rotate([0, 0, a])
-                translate([0, 0, vent_z])
-                    rotate([90, 0, 0])
-                        translate([0, 0, -col_r - 1])
-                            cylinder(h=wall + 2, d=4, $fn=16);
+                translate([-slot_w/2, col_inner_r - 1, total_h - cap_t - slot_h - 1])
+                    cube([slot_w, wall + 2, slot_h]);
 
         // Retaining screw hole (through column wall, +X side)
         // Countersunk from outside — screw head sits flush
