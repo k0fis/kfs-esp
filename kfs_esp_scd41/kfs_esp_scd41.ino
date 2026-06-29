@@ -21,13 +21,13 @@
 
 #include <kfs_esp_common.h>
 #include <Wire.h>
-#include <SensirionI2CScd4x.h>
+#include <SensirionI2cScd4x.h>
 
 // --- Hardware config ---
 #define SCD41_SDA  8
 #define SCD41_SCL  9
 
-SensirionI2CScd4x scd4x;
+SensirionI2cScd4x scd4x;
 
 // --- Sensor data ---
 static uint16_t sensorCo2  = 0;
@@ -43,7 +43,7 @@ void kfsReadSensor() {
     float hum = 0.0f;
     bool dataReady = false;
 
-    uint16_t err = scd4x.getDataReadyFlag(dataReady);
+    uint16_t err = scd4x.getDataReadyStatus(dataReady);
     if (err || !dataReady) {
         // Not ready yet — skip this cycle, will retry next interval
         return;
@@ -107,19 +107,19 @@ void setup() {
     kfsSetup();
     delay(100);
 
-    scd4x.begin(Wire);
+    scd4x.begin(Wire, 0x62);
 
     // Stop any previous measurement (required before config changes)
     scd4x.stopPeriodicMeasurement();
     delay(500);
 
     // Optional: read serial number to verify communication
-    uint16_t s0, s1, s2;
-    uint16_t err = scd4x.getSerialNumber(s0, s1, s2);
+    uint64_t serialNumber = 0;
+    uint16_t err = scd4x.getSerialNumber(serialNumber);
     if (err) {
         Serial.println("SCD41 not found! Check wiring.");
     } else {
-        Serial.printf("SCD41 serial: %04x-%04x-%04x\n", s0, s1, s2);
+        Serial.printf("SCD41 serial: %llu\n", serialNumber);
     }
 
     // Start periodic measurement (one reading every ~5s)
