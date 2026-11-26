@@ -173,6 +173,17 @@ static void kfsSetup() {
         Serial.printf("Loaded name: %s\n", kfsDeviceName);
     }
 
+    // ESP32-C3 Super Mini TX power fix — the onboard LDO can't handle
+    // full 19.5 dBm during WPA 4-way handshake, causing AUTH_FAIL.
+    // 8.5 dBm is enough for typical indoor range (~10m).
+#if defined(ESP32)
+    WiFi.mode(WIFI_STA);
+    WiFi.setTxPower(WIFI_POWER_8_5dBm);
+    WiFi.setSleep(false);
+    WiFi.mode(WIFI_MODE_NULL);  // reset mode so WiFiManager can set it
+    Serial.println("TX power limited to 8.5 dBm");
+#endif
+
     // WiFiManager
     WiFiManager wm;
     wm.setConfigPortalTimeout(300);  // 5 min portal timeout, then retry

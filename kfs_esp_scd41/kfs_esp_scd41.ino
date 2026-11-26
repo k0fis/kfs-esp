@@ -26,6 +26,8 @@
 // --- Hardware config ---
 #define SCD41_SDA  8
 #define SCD41_SCL  9
+#define I2C_TIMEOUT_MS    100   // max time for a single I2C transaction
+#define I2C_ERROR_LIMIT   30    // consecutive errors before I2C bus reset (~5 min at 10s interval)
 
 SensirionI2cScd4x scd4x;
 
@@ -34,6 +36,32 @@ static uint16_t sensorCo2  = 0;
 static float    sensorTemp = NAN;
 static float    sensorHum  = NAN;
 static bool     sensorOk   = false;
+static uint16_t i2cErrorCount = 0;
+
+// --- I2C bus recovery ---
+
+static void i2cReset() {
+    Serial.println("I2C bus reset — toggling SCL");
+    Wire.end();
+    // Toggle SCL to release stuck SDA
+    pinMode(SCD41_SCL, OUTPUT);
+    for (int i = 0; i < 16; i++) {
+        digitalWrite(SCD41_SCL, HIGH);
+        delayMicroseconds(5);
+        digitalWrite(SCD41_SCL, LOW);
+        delayMicroseconds(5);
+    }
+    digitalWrite(SCD41_SCL, HIGH);
+    pinMode(SCD41_SDA, INPUT_PULLUP);
+    delay(50);
+    Wire.begin(SCD41_SDA, SCD41_SCL);
+    Wire.setTimeOut(I2C_TIMEOUT_MS);
+    // Restart SCD41 measurement
+    scd4x.stopPeriodicMeasurement();
+    delay(500);
+    scd4x.startPeriodicMeasurement();
+    Serial.println("I2C bus reset complete, measurement restarted");
+}
 
 // --- Callbacks required by kfs_esp_common.h ---
 
@@ -45,17 +73,30 @@ void kfsReadSensor() {
 
     uint16_t err = scd4x.getDataReadyStatus(dataReady);
     if (err || !dataReady) {
-        // Not ready yet — skip this cycle, will retry next interval
+        if (err) {
+            i2cErrorCount++;
+            Serial.printf("SCD41 dataReady error (count: %u)\n", i2cErrorCount);
+            if (i2cErrorCount >= I2C_ERROR_LIMIT) {
+                i2cReset();
+                i2cErrorCount = 0;
+            }
+        }
         return;
     }
 
     err = scd4x.readMeasurement(co2, temp, hum);
     if (err || co2 == 0) {
         Serial.println("SCD41 read error");
+        i2cErrorCount++;
         sensorOk = false;
+        if (i2cErrorCount >= I2C_ERROR_LIMIT) {
+            i2cReset();
+            i2cErrorCount = 0;
+        }
         return;
     }
 
+    i2cErrorCount = 0;  // success — reset counter
     sensorCo2  = co2;
     sensorTemp = temp;
     sensorHum  = hum;
@@ -104,6 +145,7 @@ String kfsDataHtml() {
 
 void setup() {
     Wire.begin(SCD41_SDA, SCD41_SCL);
+    Wire.setTimeOut(I2C_TIMEOUT_MS);
     kfsSetup();
     delay(100);
 
